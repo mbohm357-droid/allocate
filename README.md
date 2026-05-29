@@ -1,1 +1,1 @@
-# allocat
+# allocate
