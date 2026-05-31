@@ -61,6 +61,7 @@ def _build_goals(raw: list[dict]) -> list[dict]:
         min_weekly = round(remaining / weeks_left, 2)
         goals.append({
             "name": g["name"],
+            "description": g.get("description", ""),
             "target": g["target"],
             "deadline": f"{g['deadline']} ({int(weeks_left)} weeks away)",
             "min_weekly": min_weekly,
