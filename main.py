@@ -2,10 +2,12 @@
 Allocate — AI-powered personal finance assistant.
 
 Usage:
-    python main.py          # weekly analysis (loads goals.json)
-    python test_cases.py    # run hardcoded test cases
+    python main.py             # weekly analysis (loads goals.json)
+    python main.py --dry-run   # test with hardcoded values, no real API calls
+    python test_cases.py       # run hardcoded test cases
 """
 
+import argparse
 import json
 from datetime import date, datetime
 from pathlib import Path
@@ -13,6 +15,10 @@ from pathlib import Path
 from coinbase_client import get_coinbase_data
 from engine import calculate_after_tax, run_weekly_analysis
 from plaid_client import get_plaid_data
+
+DRY_RUN_HOURS = 40
+DRY_RUN_CHECKING = 2000.0
+DRY_RUN_CRYPTO_USD = 500.0  # represents BTC position
 
 GOALS_FILE = Path(__file__).parent / "goals.json"
 
@@ -114,53 +120,87 @@ def _prompt_and_save_config() -> dict:
 # ---------------------------------------------------------------------------
 
 def main():
-    print("=" * 60)
-    print("  Allocate — Weekly Analysis")
-    print("=" * 60)
+    parser = argparse.ArgumentParser(description="Allocate — weekly finance analysis")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="Use hardcoded test values; skip all real API calls")
+    args = parser.parse_args()
+
+    if args.dry_run:
+        print("=" * 60)
+        print("  DRY RUN MODE — no real data, no API calls")
+        print("=" * 60)
+    else:
+        print("=" * 60)
+        print("  Allocate — Weekly Analysis")
+        print("=" * 60)
 
     config = _load_config()
     hourly_rate = config["hourly_rate"]
-    tax_rate = config.get("tax_rate", 0.25)
+    tax_rate = config.get("tax_rate", 0.14)
     spending_budget = config.get("spending_budget", 300.0)
     investing_allocation = config.get("investing_allocation", 120.0)
 
-    # Hours worked → gross → take-home
-    hours = float(input(f"\nHours worked this week: ").strip())
-    gross = hourly_rate * hours
-    take_home = calculate_after_tax(gross, tax_rate)
-    print(f"  Gross ${gross:.2f}  →  after-tax take-home ${take_home:.2f}")
+    if args.dry_run:
+        hours = DRY_RUN_HOURS
+        print(f"\n  Hours worked : {hours}h (hardcoded)")
+        gross = hourly_rate * hours
+        take_home = calculate_after_tax(gross, tax_rate)
+        print(f"  Gross        : ${gross:.2f}")
+        print(f"  Take-home    : ${take_home:.2f}")
 
-    # Fetch Plaid
-    print("\nFetching bank data (Plaid)...", end="", flush=True)
-    plaid_data = get_plaid_data()
-    print(" done")
+        balances = {
+            "checking": DRY_RUN_CHECKING,
+            "brokerage": 0.0,
+            "crypto": DRY_RUN_CRYPTO_USD,
+        }
+        notes = "Coinbase crypto holdings (native units, not included in USD balances):\n  BTC: 0.00500000"
+        all_transactions = [
+            {"merchant": "Trader Joe's",  "amount": 62.00},
+            {"merchant": "Uber",          "amount": 14.50},
+            {"merchant": "Chipotle",      "amount": 13.75},
+            {"merchant": "Con Edison",    "amount": 87.00},
+            {"merchant": "Netflix",       "amount": 17.99},
+            {"merchant": "Starbucks",     "amount": 6.45},
+        ]
+        print(f"\n  Checking     : ${balances['checking']:.2f} (hardcoded)")
+        print(f"  Crypto (USD) : ${balances['crypto']:.2f} (hardcoded BTC)")
+        print(f"  Transactions : {len(all_transactions)} hardcoded entries")
 
-    # Fetch Coinbase
-    print("Fetching crypto data (Coinbase)...", end="", flush=True)
-    coinbase_data = get_coinbase_data()
-    print(" done")
-
-    # Balances — checking/brokerage from Plaid; USD-stable crypto from Coinbase
-    balances = {
-        "checking": plaid_data["balances"]["checking"],
-        "brokerage": plaid_data["balances"]["brokerage"],
-        "crypto": coinbase_data["usd_cash"],
-    }
-
-    # Build a notes line so Claude sees the native crypto holdings
-    crypto_holdings = coinbase_data["balances"]
-    if crypto_holdings:
-        holdings_str = "  " + "\n  ".join(
-            f"{cur}: {amt:.8g}" for cur, amt in sorted(crypto_holdings.items())
-        )
-        notes = f"Coinbase crypto holdings (native units, not included in USD balances):\n{holdings_str}"
     else:
-        notes = ""
+        # Hours worked → gross → take-home
+        hours = float(input("\nHours worked this week: ").strip())
+        gross = hourly_rate * hours
+        take_home = calculate_after_tax(gross, tax_rate)
+        print(f"  Gross ${gross:.2f}  →  after-tax take-home ${take_home:.2f}")
 
-    # Combine transactions from both sources
-    all_transactions = plaid_data["transactions"] + coinbase_data["transactions"]
+        # Fetch Plaid
+        print("\nFetching bank data (Plaid)...", end="", flush=True)
+        plaid_data = get_plaid_data()
+        print(" done")
 
-    # Goals with computed min_weekly
+        # Fetch Coinbase
+        print("Fetching crypto data (Coinbase)...", end="", flush=True)
+        coinbase_data = get_coinbase_data()
+        print(" done")
+
+        balances = {
+            "checking": plaid_data["balances"]["checking"],
+            "brokerage": plaid_data["balances"]["brokerage"],
+            "crypto": coinbase_data["usd_cash"],
+        }
+
+        crypto_holdings = coinbase_data["balances"]
+        if crypto_holdings:
+            holdings_str = "  " + "\n  ".join(
+                f"{cur}: {amt:.8g}" for cur, amt in sorted(crypto_holdings.items())
+            )
+            notes = f"Coinbase crypto holdings (native units, not included in USD balances):\n{holdings_str}"
+        else:
+            notes = ""
+
+        all_transactions = plaid_data["transactions"] + coinbase_data["transactions"]
+
+    # Goals with computed min_weekly (always from goals.json)
     goals = _build_goals(config.get("goals", []))
 
     # Run analysis
