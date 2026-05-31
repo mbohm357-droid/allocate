@@ -89,6 +89,31 @@ def fetch_transactions(days: int = 30) -> list[dict]:
     return transactions
 
 
+def fetch_prices(currencies: list[str]) -> dict[str, float]:
+    """Return {currency: current_usd_price} using best bid/ask midpoint."""
+    cryptos = [c for c in currencies if c not in ("USD", "USDC")]
+    if not cryptos:
+        return {}
+    client = _build_client()
+    product_ids = [f"{c}-USD" for c in cryptos]
+    prices: dict[str, float] = {}
+    try:
+        resp = client.get_best_bid_ask(product_ids=product_ids)
+        for pb in resp.pricebooks or []:
+            product_id = getattr(pb, "product_id", "") or ""
+            cur = product_id.split("-")[0]
+            bids = getattr(pb, "bids", []) or []
+            asks = getattr(pb, "asks", []) or []
+            entries = asks or bids
+            if entries:
+                e = entries[0]
+                raw = e["price"] if isinstance(e, dict) else getattr(e, "price", 0)
+                prices[cur] = float(raw)
+    except Exception:
+        pass
+    return prices
+
+
 def get_coinbase_data(days: int = 30) -> dict:
     """
     Return balances and recent transactions for use with run_weekly_analysis().

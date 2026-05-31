@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
   <style>
     :root {
       --primary: #059669;
@@ -20,42 +20,24 @@
       --border: #E2E8F0;
       --goal-tint: #F0FDF4;
       --danger: #EF4444;
-      --warning: #F59E0B;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
-
-    /* ── Header ── */
     header {
       background: var(--card);
       border-bottom: 1px solid var(--border);
       padding: 0 2rem;
       display: flex;
       align-items: center;
-      justify-content: space-between;
       height: 60px;
       position: sticky;
       top: 0;
       z-index: 100;
     }
-
-    .logo {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--primary);
-      letter-spacing: -0.02em;
-    }
-
+    .logo { font-size: 1.25rem; font-weight: 700; color: var(--primary); letter-spacing: -0.02em; }
     .logo span { color: var(--text); }
 
-    /* ── Layout ── */
     main {
       max-width: 900px;
       margin: 0 auto;
@@ -65,371 +47,141 @@
       gap: 2rem;
     }
 
-    /* ── Card ── */
     .card {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 1.75rem;
     }
+    .card-title { font-size: 1rem; font-weight: 600; margin-bottom: 1.25rem; }
 
-    .card-title {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 1.25rem;
-    }
-
-    /* ── Section 1: Weekly Check-In ── */
-    .checkin-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      align-items: end;
-    }
-
+    /* ── Check-In ── */
+    .checkin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: end; }
     .field label {
-      display: block;
-      font-size: 0.8125rem;
-      font-weight: 500;
-      color: var(--muted);
-      margin-bottom: 0.4rem;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
+      display: block; font-size: 0.8125rem; font-weight: 500; color: var(--muted);
+      margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.04em;
     }
-
     .field input {
-      width: 100%;
-      padding: 0.625rem 0.875rem;
-      border: 1.5px solid var(--border);
-      border-radius: 8px;
-      font-family: inherit;
-      font-size: 0.9375rem;
-      color: var(--text);
-      background: var(--bg);
-      transition: border-color 0.15s;
-      outline: none;
+      width: 100%; padding: 0.625rem 0.875rem;
+      border: 1.5px solid var(--border); border-radius: 8px;
+      font-family: inherit; font-size: 0.9375rem; color: var(--text);
+      background: var(--bg); outline: none; transition: border-color 0.15s;
     }
-
     .field input:focus { border-color: var(--primary); }
-
-    .preview {
-      font-size: 0.8125rem;
-      color: var(--muted);
-      margin-top: 0.4rem;
-      min-height: 1.2em;
-    }
-
+    .preview { font-size: 0.8125rem; color: var(--muted); margin-top: 0.4rem; min-height: 1.2em; }
     .preview strong { color: var(--primary); }
 
     .btn-run {
-      width: 100%;
-      padding: 0.75rem;
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-family: inherit;
-      font-size: 0.9375rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.15s, opacity 0.15s;
-      margin-top: 1.25rem;
+      width: 100%; padding: 0.75rem;
+      background: var(--primary); color: #fff; border: none; border-radius: 8px;
+      font-family: inherit; font-size: 0.9375rem; font-weight: 600; cursor: pointer;
+      transition: background 0.15s; margin-top: 1.25rem;
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 44px;
     }
-
-    .btn-run:hover { background: var(--primary-light); }
+    .btn-run:hover:not(:disabled) { background: var(--primary-light); }
     .btn-run:disabled { opacity: 0.55; cursor: not-allowed; }
 
     .spinner {
-      display: none;
-      width: 18px;
-      height: 18px;
-      border: 2px solid rgba(255,255,255,0.4);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      margin: 0 auto;
+      display: none; width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
     }
-
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── Section 2: Dashboard ── */
-    #dashboard { display: none; }
-
-    .stats-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-      margin-bottom: 1.5rem;
+    .error-msg {
+      display: none; font-size: 0.8125rem; color: var(--danger);
+      margin-top: 0.75rem; padding: 0.625rem 0.875rem;
+      background: #FEF2F2; border: 1px solid #FECACA; border-radius: 6px;
     }
 
-    .stat {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1rem 1.25rem;
-    }
+    /* ── Dashboard ── */
+    /* NOTE: display:flex so child cards get the gap between them */
+    #dashboard { display: flex; flex-direction: column; gap: 2rem; }
 
-    .stat-label {
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 0.25rem;
-    }
-
-    .stat-value {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--text);
-    }
-
+    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; }
+    .stat-label { font-size: 0.75rem; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; }
+    .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--text); }
     .stat-value.positive { color: var(--primary); }
     .stat-value.negative { color: var(--danger); }
 
-    /* ── Spending bar chart ── */
-    .chart-section { margin-bottom: 1.5rem; }
+    .chart-title { font-size: 0.8125rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem; }
+    .bar-row { display: grid; grid-template-columns: 120px 1fr 68px; align-items: center; gap: 0.75rem; margin-bottom: 0.625rem; }
+    .bar-label { font-size: 0.8125rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bar-track { background: var(--bg); border-radius: 4px; height: 8px; overflow: hidden; border: 1px solid var(--border); }
+    .bar-fill { height: 100%; background: var(--primary); border-radius: 4px; width: 0%; transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1); }
+    .bar-fill.uncategorized { background: #94A3B8; }   /* slate gray for Uncategorized */
+    .bar-label.uncategorized { color: var(--muted); font-style: italic; }
+    .bar-amount { font-size: 0.8125rem; font-weight: 600; text-align: right; }
 
-    .chart-title {
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 1rem;
+    /* ── Flagged / excluded expandable ── */
+    .flagged-toggle {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      font-size: 0.75rem; font-weight: 500; color: #B45309;
+      background: #FEF3C7; border: 1px solid #FDE68A; border-radius: 4px;
+      padding: 0.2rem 0.5rem; margin-top: 0.5rem; cursor: pointer;
+      text-decoration: none; white-space: nowrap;
     }
-
-    .bar-row {
-      display: grid;
-      grid-template-columns: 110px 1fr 60px;
-      align-items: center;
-      gap: 0.75rem;
-      margin-bottom: 0.625rem;
+    .flagged-toggle:hover { background: #FDE68A; }
+    .flagged-drawer {
+      margin-top: 0.75rem; border: 1px solid var(--border); border-radius: 8px;
+      overflow: hidden; display: none;
     }
-
-    .bar-label {
-      font-size: 0.8125rem;
-      font-weight: 500;
-      color: var(--text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    .flagged-item {
+      display: grid; grid-template-columns: 1fr auto;
+      align-items: start; gap: 0.25rem 0.75rem;
+      padding: 0.625rem 0.875rem; border-bottom: 1px solid var(--border); font-size: 0.8125rem;
     }
-
-    .bar-track {
-      background: var(--bg);
-      border-radius: 4px;
-      height: 8px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-    }
-
-    .bar-fill {
-      height: 100%;
-      background: var(--primary);
-      border-radius: 4px;
-      transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    .bar-amount {
-      font-size: 0.8125rem;
-      font-weight: 600;
-      color: var(--text);
-      text-align: right;
-    }
+    .flagged-item:last-child { border-bottom: none; }
+    .flagged-merchant { font-weight: 500; }
+    .flagged-amount   { font-weight: 600; text-align: right; white-space: nowrap; }
+    .flagged-reason   { font-size: 0.75rem; color: var(--muted); grid-column: 1 / -1; }
 
     /* ── Goal cards ── */
-    .goals-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
+    .goals-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     .goal-card {
-      background: var(--goal-tint);
-      border: 1px solid #BBF7D0;
-      border-radius: 10px;
-      padding: 1.125rem;
+      background: var(--goal-tint); border: 1px solid #BBF7D0; border-radius: 10px;
+      padding: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem;
     }
+    .goal-name { font-size: 0.9375rem; font-weight: 600; }
+    .goal-desc { font-size: 0.75rem; color: var(--muted); line-height: 1.4; }
+    .goal-progress-track { background: #D1FAE5; border-radius: 4px; height: 6px; overflow: hidden; margin-top: 0.25rem; }
+    .goal-progress-fill { height: 100%; background: var(--primary); border-radius: 4px; width: 0%; transition: width 0.8s ease; }
+    .goal-meta { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); margin-top: 0.125rem; }
+    .goal-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 0.25rem; }
+    .goal-weekly { font-size: 0.8125rem; font-weight: 600; color: var(--primary); }
 
-    .goal-name {
-      font-size: 0.9375rem;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 0.2rem;
-    }
-
-    .goal-desc {
-      font-size: 0.75rem;
-      color: var(--muted);
-      margin-bottom: 0.75rem;
-    }
-
-    .goal-progress-track {
-      background: #D1FAE5;
-      border-radius: 4px;
-      height: 6px;
-      overflow: hidden;
-      margin-bottom: 0.5rem;
-    }
-
-    .goal-progress-fill {
-      height: 100%;
-      background: var(--primary);
-      border-radius: 4px;
-      transition: width 0.6s ease;
-    }
-
-    .goal-meta {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.75rem;
-      color: var(--muted);
-    }
-
-    .goal-meta strong { color: var(--primary); }
-
-    .goal-weekly {
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--primary);
-      margin-top: 0.3rem;
-    }
-
-    /* ── AI Recommendation ── */
-    .recommendation {
-      border-left: 4px solid var(--primary);
-      padding-left: 1.25rem;
-      background: var(--goal-tint);
-      border-radius: 0 10px 10px 0;
-      padding: 1.25rem 1.25rem 1.25rem 1.5rem;
-    }
-
-    .recommendation-label {
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--primary);
-      margin-bottom: 0.75rem;
-    }
-
-    .recommendation-body {
-      font-size: 0.9rem;
-      line-height: 1.65;
-      color: var(--text);
-    }
-
-    .recommendation-body h1,
-    .recommendation-body h2,
-    .recommendation-body h3 {
-      font-size: 1rem;
-      font-weight: 600;
-      margin: 1rem 0 0.4rem;
-    }
-
-    .recommendation-body ul,
-    .recommendation-body ol {
-      padding-left: 1.25rem;
-      margin: 0.5rem 0;
-    }
-
+    /* ── Recommendation ── */
+    .recommendation { border-left: 4px solid var(--primary); background: var(--goal-tint); border-radius: 0 10px 10px 0; padding: 1.25rem 1.5rem; }
+    .recommendation-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--primary); margin-bottom: 0.75rem; }
+    .recommendation-body { font-size: 0.9rem; line-height: 1.65; color: var(--text); }
+    .recommendation-body h1, .recommendation-body h2, .recommendation-body h3 { font-size: 1rem; font-weight: 600; margin: 1rem 0 0.4rem; }
+    .recommendation-body h1:first-child, .recommendation-body h2:first-child, .recommendation-body h3:first-child { margin-top: 0; }
+    .recommendation-body ul, .recommendation-body ol { padding-left: 1.25rem; margin: 0.5rem 0; }
     .recommendation-body li { margin-bottom: 0.25rem; }
-
     .recommendation-body p { margin-bottom: 0.6rem; }
-
+    .recommendation-body p:last-child { margin-bottom: 0; }
     .recommendation-body strong { font-weight: 600; }
+    .recommendation-body hr { border: none; border-top: 1px solid #BBF7D0; margin: 1rem 0; }
 
-    /* ── Section 3: Accounts ── */
-    .accounts-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-
-    .account-item {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.875rem 1rem;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-    }
-
-    .account-icon {
-      width: 38px;
-      height: 38px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.125rem;
-      flex-shrink: 0;
-    }
-
-    .icon-bank { background: #EFF6FF; }
+    /* ── Accounts ── */
+    .accounts-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem; }
+    .account-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.875rem 1rem; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; }
+    .account-icon { width: 38px; height: 38px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.125rem; flex-shrink: 0; }
+    .icon-bank   { background: #EFF6FF; }
     .icon-crypto { background: #FFF7ED; }
-    .icon-invest { background: #F5F3FF; }
+    .account-label { font-size: 0.75rem; color: var(--muted); font-weight: 500; }
+    .account-value { font-size: 0.9375rem; font-weight: 700; }
 
-    .account-label {
-      font-size: 0.75rem;
-      color: var(--muted);
-      font-weight: 500;
-    }
-
-    .account-value {
-      font-size: 0.9375rem;
-      font-weight: 700;
-      color: var(--text);
-    }
-
-    .holdings-list {
-      margin-top: 1rem;
-    }
-
-    .holdings-title {
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--muted);
-      margin-bottom: 0.625rem;
-    }
-
-    .holding-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.5rem 0;
-      border-bottom: 1px solid var(--border);
-      font-size: 0.875rem;
-    }
-
+    .holdings-title { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 0.625rem; border-top: 1px solid var(--border); padding-top: 1rem; }
+    .holding-row { display: grid; grid-template-columns: 60px 1fr auto auto; align-items: center; gap: 0.5rem 1rem; padding: 0.5rem 0; border-bottom: 1px solid var(--border); font-size: 0.875rem; }
     .holding-row:last-child { border-bottom: none; }
+    .holding-ticker { font-weight: 700; }
+    .holding-amount { color: var(--muted); font-size: 0.8125rem; text-align: right; }
+    .holding-usd { font-weight: 600; text-align: right; min-width: 80px; }
 
-    .holding-ticker { font-weight: 600; }
-    .holding-amount { color: var(--muted); }
-
-    .loading-dot {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--muted);
-      opacity: 0.4;
-      animation: pulse 1.2s ease-in-out infinite;
-    }
-
+    .loading-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); opacity: 0.4; animation: pulse 1.2s ease-in-out infinite; }
     @keyframes pulse { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
-
-    .error-msg {
-      font-size: 0.8125rem;
-      color: var(--danger);
-      margin-top: 0.5rem;
-    }
   </style>
 </head>
 <body>
@@ -456,18 +208,17 @@
       </div>
     </div>
     <button class="btn-run" id="run-btn" onclick="runAnalysis()">
-      <span id="btn-text">Run Analysis</span>
       <div class="spinner" id="btn-spinner"></div>
+      <span id="btn-text">Run Analysis</span>
     </button>
-    <div class="error-msg" id="error-msg" style="display:none;"></div>
+    <div class="error-msg" id="error-msg"></div>
   </div>
 
-  <!-- ── Section 2: Dashboard (hidden until analysis) ── -->
+  <!-- ── Section 2: Dashboard — always visible so CSS/HTML can be confirmed ── -->
   <div id="dashboard">
 
     <div class="card">
       <div class="card-title">This Week</div>
-
       <div class="stats-row">
         <div class="stat">
           <div class="stat-label">Take-Home</div>
@@ -476,24 +227,47 @@
         <div class="stat">
           <div class="stat-label">Total Spent</div>
           <div class="stat-value" id="stat-spent">—</div>
+          <div id="flagged-wrap" style="display:none;">
+            <button class="flagged-toggle" onclick="toggleFlagged()" id="flagged-toggle">
+              ⚑ <span id="flagged-count">0</span> excluded — show
+            </button>
+          </div>
         </div>
         <div class="stat">
           <div class="stat-label">Budget Remaining</div>
           <div class="stat-value" id="stat-remaining">—</div>
         </div>
       </div>
+      <!-- Excluded transactions drawer (revealed by flagged-toggle) -->
+      <div class="flagged-drawer" id="flagged-drawer"></div>
 
-      <div class="chart-section">
+      <div>
         <div class="chart-title">Spending by Category</div>
-        <div id="spending-chart"></div>
+        <div id="spending-chart"><em style="color:var(--muted);font-size:0.875rem;">Run analysis to see spending breakdown</em></div>
       </div>
-
     </div>
 
-    <!-- Goals -->
+    <!-- Goals — pre-rendered by Flask so CSS is confirmed independently of JS -->
     <div class="card">
       <div class="card-title">Savings Goals</div>
-      <div class="goals-grid" id="goals-grid"></div>
+      <div class="goals-grid" id="goals-grid">
+        {% for g in goals %}
+        <div class="goal-card">
+          <div class="goal-name">{{ g.name }}</div>
+          {% if g.description %}<div class="goal-desc">{{ g.description }}</div>{% endif %}
+          <div class="goal-progress-track">
+            <div class="goal-progress-fill" style="width:{{ [(g.current / g.target * 100) if g.target > 0 else 0, 100]|min|round(1) }}%"></div>
+          </div>
+          <div class="goal-meta">
+            <span>${{ "%.2f"|format(g.current) }} of ${{ "%.2f"|format(g.target) }}</span>
+            <span>{{ g.deadline }}</span>
+          </div>
+          <div class="goal-footer">
+            <div class="goal-weekly">Min ${{ "%.2f"|format(g.min_weekly) }}/week</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
     </div>
 
     <!-- AI Recommendation -->
@@ -501,7 +275,7 @@
       <div class="recommendation">
         <div class="recommendation-label">AI Recommendation</div>
         <div class="recommendation-body" id="recommendation-body">
-          Waiting for analysis…
+          <em style="color:var(--muted);">Run analysis to get your weekly recommendation.</em>
         </div>
       </div>
     </div>
@@ -511,7 +285,7 @@
   <!-- ── Section 3: Accounts ── -->
   <div class="card">
     <div class="card-title">Accounts</div>
-    <div class="accounts-grid" id="accounts-grid">
+    <div class="accounts-summary">
       <div class="account-item">
         <div class="account-icon icon-bank">🏦</div>
         <div>
@@ -522,13 +296,13 @@
       <div class="account-item">
         <div class="account-icon icon-crypto">₿</div>
         <div>
-          <div class="account-label">Coinbase (USD Cash)</div>
-          <div class="account-value" id="acct-crypto"><span class="loading-dot"></span></div>
+          <div class="account-label">Total Crypto Value</div>
+          <div class="account-value" id="acct-crypto-total"><span class="loading-dot"></span></div>
         </div>
       </div>
     </div>
-    <div class="holdings-list" id="holdings-section" style="display:none;">
-      <div class="holdings-title">Crypto Holdings</div>
+    <div id="holdings-section" style="display:none;">
+      <div class="holdings-title">Coinbase Holdings</div>
       <div id="holdings-list"></div>
     </div>
   </div>
@@ -537,165 +311,240 @@
 
 <script>
   const HOURLY_RATE = {{ hourly_rate }};
-  const TAX_RATE = {{ tax_rate }};
+  const TAX_RATE    = {{ tax_rate }};
+
+  console.log('[allocate] page loaded. HOURLY_RATE=' + HOURLY_RATE + ' TAX_RATE=' + TAX_RATE);
+  console.log('[allocate] marked available:', typeof marked !== 'undefined');
+
+  // ── Helpers ──
+  function fmt(n) {
+    if (n == null) return '—';
+    return '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function renderMarkdown(text) {
+    if (typeof marked !== 'undefined') {
+      try { return marked.parse(text); } catch (e) {
+        console.warn('[allocate] marked.parse failed:', e);
+      }
+    }
+    return text
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/^#{1,3} (.+)$/gm, '<strong>$1</strong>')
+      .replace(/\n/g, '<br>');
+  }
 
   // ── Live take-home preview ──
   document.getElementById('hours-input').addEventListener('input', function () {
     const hours = parseFloat(this.value) || 0;
-    const gross = hours * HOURLY_RATE;
-    const takeHome = gross * (1 - TAX_RATE);
     const preview = document.getElementById('takehome-preview');
     if (hours > 0) {
-      preview.innerHTML = `Gross <strong>$${gross.toFixed(2)}</strong> → take-home <strong>$${takeHome.toFixed(2)}</strong>`;
+      const gross = hours * HOURLY_RATE;
+      const takeHome = gross * (1 - TAX_RATE);
+      preview.innerHTML = `Gross <strong>${fmt(gross)}</strong> → take-home <strong>${fmt(takeHome)}</strong>`;
     } else {
       preview.textContent = 'Enter hours to see take-home estimate';
     }
   });
 
-  // ── Format currency ──
-  function fmt(n) {
-    return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  }
-
-  // ── Run analysis ──
+  // ── Run Analysis ──
   async function runAnalysis() {
+    console.log('[allocate] runAnalysis() called');
+
     const hours = parseFloat(document.getElementById('hours-input').value);
     const lending = parseFloat(document.getElementById('lending-input').value) || 0;
+    console.log('[allocate] hours=' + hours + ' lending=' + lending);
+
     const errEl = document.getElementById('error-msg');
     errEl.style.display = 'none';
 
     if (!hours || hours <= 0) {
+      console.log('[allocate] no hours entered — aborting');
       errEl.textContent = 'Please enter hours worked.';
       errEl.style.display = 'block';
       return;
     }
 
-    const btn = document.getElementById('run-btn');
+    const btn     = document.getElementById('run-btn');
     const btnText = document.getElementById('btn-text');
     const spinner = document.getElementById('btn-spinner');
     btn.disabled = true;
-    btnText.style.display = 'none';
+    btnText.textContent = 'Analyzing…';
     spinner.style.display = 'block';
 
+    console.log('[allocate] POSTing to /api/analyze...');
     try {
       const res = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ hours, lending_balance: lending }),
+        body: JSON.stringify({ hours: hours, lending_balance: lending }),
       });
+      console.log('[allocate] response status:', res.status, 'ok:', res.ok);
 
-      if (!res.ok) throw new Error(`Server error ${res.status}`);
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error('Server ' + res.status + ': ' + text.slice(0, 200));
+      }
+
       const data = await res.json();
+      console.log('[allocate] data keys:', Object.keys(data));
+      console.log('[allocate] take_home:', data.take_home, 'goals:', data.goals ? data.goals.length : 'none');
+
       renderDashboard(data);
     } catch (err) {
+      console.error('[allocate] FETCH ERROR:', err);
       errEl.textContent = 'Analysis failed: ' + err.message;
       errEl.style.display = 'block';
     } finally {
       btn.disabled = false;
-      btnText.style.display = 'inline';
+      btnText.textContent = 'Run Analysis';
       spinner.style.display = 'none';
     }
   }
 
+  // ── Render dashboard after analysis ──
   function renderDashboard(data) {
+    console.log('[allocate] renderDashboard() called');
+
     // Stats
     document.getElementById('stat-takehome').textContent = fmt(data.take_home);
-    document.getElementById('stat-spent').textContent = fmt(data.total_spent);
-
-    const remaining = data.spending_budget - data.total_spent;
+    document.getElementById('stat-spent').textContent    = fmt(data.total_spent);
+    const remaining = (data.spending_budget || 0) - (data.total_spent || 0);
     const remEl = document.getElementById('stat-remaining');
     remEl.textContent = fmt(Math.abs(remaining));
     remEl.className = 'stat-value ' + (remaining >= 0 ? 'positive' : 'negative');
 
-    // Spending chart
+    // Excluded / flagged transactions
+    const excluded = data.excluded_transactions || [];
+    const flaggedWrap   = document.getElementById('flagged-wrap');
+    const flaggedDrawer = document.getElementById('flagged-drawer');
+    if (excluded.length > 0) {
+      document.getElementById('flagged-count').textContent = excluded.length;
+      flaggedWrap.style.display = 'block';
+      flaggedDrawer.innerHTML = excluded.map(function(e) {
+        return '<div class="flagged-item">' +
+          '<span class="flagged-merchant">' + e.merchant + '</span>' +
+          '<span class="flagged-amount">' + fmt(e.amount) + '</span>' +
+          '<span class="flagged-reason">' + e.reason + '</span>' +
+          '</div>';
+      }).join('');
+    } else {
+      flaggedWrap.style.display = 'none';
+      flaggedDrawer.style.display = 'none';
+    }
+
+    // Spending bar chart — Uncategorized gets a gray bar
     const chart = document.getElementById('spending-chart');
     chart.innerHTML = '';
-    const maxAmount = Math.max(...Object.values(data.spending_by_category), 1);
-    for (const [cat, amt] of Object.entries(data.spending_by_category)) {
-      const pct = Math.min(100, (amt / maxAmount) * 100);
-      chart.innerHTML += `
-        <div class="bar-row">
-          <div class="bar-label">${cat}</div>
-          <div class="bar-track">
-            <div class="bar-fill" style="width:0%" data-pct="${pct}"></div>
-          </div>
-          <div class="bar-amount">${fmt(amt)}</div>
-        </div>`;
+    const cats = data.spending_by_category || {};
+    const knownAmts = Object.entries(cats)
+      .filter(function(e) { return e[0] !== 'Uncategorized'; })
+      .map(function(e) { return Number(e[1]); });
+    const maxAmt = Math.max(...knownAmts, 1);
+    for (const [cat, amt] of Object.entries(cats)) {
+      const isUncategorized = cat === 'Uncategorized';
+      // Uncategorized bar scales against the same max so it's visually comparable
+      const pct = Math.min(100, (Number(amt) / maxAmt) * 100).toFixed(1);
+      const row = document.createElement('div');
+      row.className = 'bar-row';
+      row.innerHTML =
+        '<div class="bar-label' + (isUncategorized ? ' uncategorized' : '') + '">' + cat + '</div>' +
+        '<div class="bar-track"><div class="bar-fill' + (isUncategorized ? ' uncategorized' : '') + '" data-pct="' + pct + '"></div></div>' +
+        '<div class="bar-amount">' + fmt(amt) + '</div>';
+      chart.appendChild(row);
     }
-    // Animate bars after paint
-    requestAnimationFrame(() => {
-      chart.querySelectorAll('.bar-fill').forEach(el => {
+    requestAnimationFrame(function() {
+      chart.querySelectorAll('.bar-fill').forEach(function(el) {
         el.style.width = el.dataset.pct + '%';
       });
     });
 
-    // Goals
+    // Goal cards — replace pre-rendered placeholders with live data
     const grid = document.getElementById('goals-grid');
     grid.innerHTML = '';
-    for (const g of data.goals) {
+    for (const g of (data.goals || [])) {
       const pct = g.target > 0 ? Math.min(100, (g.current / g.target) * 100) : 0;
-      const desc = g.description ? `<div class="goal-desc">${g.description}</div>` : '<div class="goal-desc" style="margin-bottom:0.75rem"></div>';
-      grid.innerHTML += `
-        <div class="goal-card">
-          <div class="goal-name">${g.name}</div>
-          ${desc}
-          <div class="goal-progress-track">
-            <div class="goal-progress-fill" style="width:${pct}%"></div>
-          </div>
-          <div class="goal-meta">
-            <span>${fmt(g.current)} of ${fmt(g.target)}</span>
-            <span>${g.deadline}</span>
-          </div>
-          <div class="goal-weekly">Min ${fmt(g.min_weekly)}/week needed</div>
-        </div>`;
+      const weeksMatch = String(g.deadline).match(/\((\d+) weeks away\)/);
+      const weeksLabel = weeksMatch ? weeksMatch[1] + ' weeks left' : g.deadline;
+      const card = document.createElement('div');
+      card.className = 'goal-card';
+      card.innerHTML =
+        '<div class="goal-name">' + g.name + '</div>' +
+        (g.description ? '<div class="goal-desc">' + g.description + '</div>' : '') +
+        '<div class="goal-progress-track"><div class="goal-progress-fill" data-pct="' + pct.toFixed(1) + '"></div></div>' +
+        '<div class="goal-meta"><span>' + fmt(g.current) + ' of ' + fmt(g.target) + '</span><span>' + weeksLabel + '</span></div>' +
+        '<div class="goal-footer"><div class="goal-weekly">Min ' + fmt(g.min_weekly) + '/week</div></div>';
+      grid.appendChild(card);
     }
+    requestAnimationFrame(function() {
+      grid.querySelectorAll('.goal-progress-fill').forEach(function(el) {
+        el.style.width = el.dataset.pct + '%';
+      });
+    });
 
-    // Recommendation
-    const recBody = document.getElementById('recommendation-body');
-    recBody.innerHTML = marked.parse(data.recommendation);
+    // AI Recommendation
+    document.getElementById('recommendation-body').innerHTML =
+      renderMarkdown(data.recommendation || '');
 
-    // Update accounts with fresh data from analysis
+    // Update accounts
     updateAccountDisplay(
-      data.balances.checking,
-      data.balances.crypto,
-      data.coinbase_holdings
+      data.balances ? data.balances.checking : null,
+      data.coinbase_total_usd,
+      data.coinbase_holdings,
+      data.coinbase_usd_values
     );
 
-    // Show dashboard
-    document.getElementById('dashboard').style.display = 'block';
-    document.getElementById('dashboard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    console.log('[allocate] renderDashboard() complete');
   }
 
-  function updateAccountDisplay(checking, cryptoUsd, holdings) {
-    const checkEl = document.getElementById('acct-checking');
-    checkEl.textContent = checking != null ? fmt(checking) : 'Unavailable';
-
-    const cryptoEl = document.getElementById('acct-crypto');
-    cryptoEl.textContent = cryptoUsd != null ? fmt(cryptoUsd) : 'Unavailable';
+  // ── Update accounts section ──
+  function updateAccountDisplay(checking, totalCryptoUsd, holdings, usdValues) {
+    document.getElementById('acct-checking').textContent =
+      checking != null ? fmt(checking) : 'Unavailable';
+    document.getElementById('acct-crypto-total').textContent =
+      totalCryptoUsd != null ? fmt(totalCryptoUsd) : 'Unavailable';
 
     const section = document.getElementById('holdings-section');
-    const list = document.getElementById('holdings-list');
+    const list    = document.getElementById('holdings-list');
     if (holdings && Object.keys(holdings).length > 0) {
-      list.innerHTML = Object.entries(holdings)
-        .sort((a, b) => b[1] - a[1])
-        .map(([cur, amt]) => `
-          <div class="holding-row">
-            <span class="holding-ticker">${cur}</span>
-            <span class="holding-amount">${amt.toLocaleString('en-US', { maximumFractionDigits: 8 })}</span>
-          </div>`).join('');
+      const usd = usdValues || {};
+      const sorted = Object.entries(holdings).sort(function(a,b){ return (usd[b[0]]||0)-(usd[a[0]]||0); });
+      list.innerHTML = sorted.map(function([cur, amt]) {
+        const amtStr = Number(amt).toLocaleString('en-US', { maximumSignificantDigits: 7 });
+        return '<div class="holding-row">' +
+          '<div class="holding-ticker">' + cur + '</div>' +
+          '<div></div>' +
+          '<div class="holding-amount">' + amtStr + '</div>' +
+          '<div class="holding-usd">' + (usd[cur] != null ? fmt(usd[cur]) : '—') + '</div>' +
+          '</div>';
+      }).join('');
       section.style.display = 'block';
     }
   }
 
+  // ── Flagged transactions toggle ──
+  var _flaggedOpen = false;
+  function toggleFlagged() {
+    _flaggedOpen = !_flaggedOpen;
+    const drawer = document.getElementById('flagged-drawer');
+    const btn    = document.getElementById('flagged-toggle');
+    const count  = document.getElementById('flagged-count').textContent;
+    drawer.style.display = _flaggedOpen ? 'block' : 'none';
+    btn.innerHTML = (_flaggedOpen ? '▲ ' : '⚑ ') + '<span id="flagged-count">' + count + '</span> excluded — ' + (_flaggedOpen ? 'hide' : 'show');
+  }
+
   // ── Load account balances on page load ──
   (async function loadAccounts() {
+    console.log('[allocate] loadAccounts() starting');
     try {
       const res = await fetch('/api/accounts');
-      if (!res.ok) return;
+      if (!res.ok) { console.warn('[allocate] /api/accounts returned', res.status); return; }
       const data = await res.json();
-      updateAccountDisplay(data.checking, data.coinbase_usd, data.coinbase_holdings);
-    } catch (_) {
-      // silent — accounts section degrades gracefully
+      console.log('[allocate] accounts loaded:', data);
+      updateAccountDisplay(data.checking, data.coinbase_total_usd, data.coinbase_holdings, data.coinbase_usd_values);
+    } catch (e) {
+      console.warn('[allocate] loadAccounts error:', e);
     }
   })();
 </script>

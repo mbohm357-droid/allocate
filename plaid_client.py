@@ -129,8 +129,10 @@ def fetch_balances(access_token: str | None = None) -> dict[str, float]:
 
 def fetch_transactions(access_token: str | None = None, days: int = 30) -> list[dict]:
     """
-    Return transactions from the last `days` days, formatted for run_weekly_analysis().
-    Plaid amounts are positive for debits, negative for credits — we store absolute values.
+    Return ALL non-pending transactions from the last `days` days.
+
+    Plaid sign convention: positive = debit (spending), negative = credit (income).
+    Callers are responsible for classifying transfers, payroll, and income.
     """
     client = _build_client()
     token = access_token or _get_access_token()
@@ -146,11 +148,14 @@ def fetch_transactions(access_token: str | None = None, days: int = 30) -> list[
     for txn in resp.transactions:
         if txn.pending:
             continue
+        cats = txn.category or []
         transactions.append({
             "merchant": txn.merchant_name or txn.name,
-            "amount": abs(float(txn.amount)),
+            "amount": float(txn.amount),
             "date": str(txn.date),
             "account_id": txn.account_id,
+            "plaid_category": cats[0] if cats else "",
+            "has_merchant_name": bool(txn.merchant_name),
         })
 
     return transactions
