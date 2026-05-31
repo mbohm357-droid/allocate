@@ -150,6 +150,7 @@
     .goal-meta { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); margin-top: 0.125rem; }
     .goal-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 0.25rem; }
     .goal-weekly { font-size: 0.8125rem; font-weight: 600; color: var(--primary); }
+    .goal-not-started { font-size: 0.75rem; color: var(--muted); margin-top: 0.2rem; }
 
     /* ── Recommendation ── */
     .recommendation { border-left: 4px solid var(--primary); background: var(--goal-tint); border-radius: 0 10px 10px 0; padding: 1.25rem 1.5rem; }
@@ -234,7 +235,7 @@
           </div>
         </div>
         <div class="stat">
-          <div class="stat-label">Budget Remaining</div>
+          <div class="stat-label" id="stat-remaining-label">Budget Remaining</div>
           <div class="stat-value" id="stat-remaining">—</div>
         </div>
       </div>
@@ -258,6 +259,7 @@
           <div class="goal-progress-track">
             <div class="goal-progress-fill" style="width:{{ [(g.current / g.target * 100) if g.target > 0 else 0, 100]|min|round(1) }}%"></div>
           </div>
+          {% if g.current == 0 %}<div class="goal-not-started">Not started</div>{% endif %}
           <div class="goal-meta">
             <span>${{ "%.2f"|format(g.current) }} of ${{ "%.2f"|format(g.target) }}</span>
             <span>{{ g.deadline }}</span>
@@ -411,9 +413,11 @@
     document.getElementById('stat-takehome').textContent = fmt(data.take_home);
     document.getElementById('stat-spent').textContent    = fmt(data.total_spent);
     const remaining = (data.spending_budget || 0) - (data.total_spent || 0);
-    const remEl = document.getElementById('stat-remaining');
-    remEl.textContent = fmt(Math.abs(remaining));
-    remEl.className = 'stat-value ' + (remaining >= 0 ? 'positive' : 'negative');
+    const remEl      = document.getElementById('stat-remaining');
+    const remLabel   = document.getElementById('stat-remaining-label');
+    remEl.textContent      = fmt(Math.abs(remaining));
+    remEl.className        = 'stat-value ' + (remaining >= 0 ? 'positive' : 'negative');
+    remLabel.textContent   = remaining >= 0 ? 'Budget Remaining' : 'Over Budget';
 
     // Excluded / flagged transactions
     const excluded = data.excluded_transactions || [];
@@ -469,10 +473,12 @@
       const weeksLabel = weeksMatch ? weeksMatch[1] + ' weeks left' : g.deadline;
       const card = document.createElement('div');
       card.className = 'goal-card';
+      const notStarted = g.current === 0;
       card.innerHTML =
         '<div class="goal-name">' + g.name + '</div>' +
         (g.description ? '<div class="goal-desc">' + g.description + '</div>' : '') +
         '<div class="goal-progress-track"><div class="goal-progress-fill" data-pct="' + pct.toFixed(1) + '"></div></div>' +
+        (notStarted ? '<div class="goal-not-started">Not started</div>' : '') +
         '<div class="goal-meta"><span>' + fmt(g.current) + ' of ' + fmt(g.target) + '</span><span>' + weeksLabel + '</span></div>' +
         '<div class="goal-footer"><div class="goal-weekly">Min ' + fmt(g.min_weekly) + '/week</div></div>';
       grid.appendChild(card);
@@ -483,9 +489,11 @@
       });
     });
 
-    // AI Recommendation
-    document.getElementById('recommendation-body').innerHTML =
-      renderMarkdown(data.recommendation || '');
+    // AI Recommendation — strip emojis before rendering
+    const rec = (data.recommendation || '').replace(
+      /[\u{1F000}-\u{1FFFF}]|[\u{2600}-\u{27BF}]|[\u{2300}-\u{23FF}]|\u{FE0F}|\u{20E3}/gu, ''
+    ).replace(/  +/g, ' ').trim();
+    document.getElementById('recommendation-body').innerHTML = renderMarkdown(rec);
 
     // Update accounts
     updateAccountDisplay(
