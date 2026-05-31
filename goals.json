@@ -1,0 +1,22 @@
+{
+  "hourly_rate": 32.0,
+  "tax_rate": 0.14,
+  "spending_budget": 300.0,
+  "investing_allocation": 120.0,
+  "goals": [
+    {
+      "name": "Guatemala Trip",
+      "description": "1 week — Acatenango hike, Lake Atitlán, Tikal ruins",
+      "target": 1200.0,
+      "deadline": "2026-12-14",
+      "current": 0.0
+    },
+    {
+      "name": "Rio de Janeiro Trip",
+      "description": "5 days with friends — flights, accommodation, activities",
+      "target": 1800.0,
+      "deadline": "2027-03-01",
+      "current": 0.0
+    }
+  ]
+}

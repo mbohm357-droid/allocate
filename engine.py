@@ -6,8 +6,9 @@ from prompt import SYSTEM_PROMPT
 load_dotenv()
 
 
-def calculate_after_tax(gross_weekly: float, tax_rate: float = 0.25) -> float:
-    """Calculate after-tax weekly take-home from gross weekly income."""
+def calculate_after_tax(gross_weekly: float, tax_rate: float = 0.14) -> float:
+    # Effective 14%: standard deduction wipes out most federal liability (~0%),
+    # FICA 7.65%, NY non-resident state ~4%, minimal CA tax offset by out-of-state credit.
     return gross_weekly * (1 - tax_rate)
 
 
@@ -18,6 +19,7 @@ def run_weekly_analysis(
     balances: dict,
     spending_budget: float = 300.0,
     investing_allocation: float = 120.0,
+    notes: str = "",
 ) -> str:
     """
     Run a weekly financial analysis using Claude.
@@ -48,6 +50,8 @@ def run_weekly_analysis(
         for g in goals
     )
 
+    notes_section = f"\nAdditional context:\n{notes}\n" if notes else ""
+
     user_message = f"""Weekly financial update:
 
 After-tax weekly take-home: ${take_home:.2f}
@@ -57,14 +61,14 @@ Default investing allocation: ${investing_allocation:.2f}/week (Vanguard)
 Current account balances:
 - Checking: ${balances.get('checking', 0):.2f}
 - Brokerage: ${balances.get('brokerage', 0):.2f}
-- Crypto: ${balances.get('crypto', 0):.2f}
+- Crypto (USD): ${balances.get('crypto', 0):.2f}
 
 Savings goals:
 {goal_lines}
 
 Transactions this week (total: ${total_spending:.2f}):
 {transaction_lines}
-
+{notes_section}
 Please analyze my spending, compare it to my budget, and recommend how to allocate this week's paycheck."""
 
     message = client.messages.create(
